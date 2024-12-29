@@ -1,0 +1,100 @@
+services:
+  user-service:
+    build:
+      context: ./services/user-service
+    # ports:
+    #   - "3001:3001"
+    environment:
+      - APP_NAME=User Service
+      - APP_VERSION=1.0.0
+      - DATABASE_NAME=<your_database_name>
+      - DATABASE_USER=<your_database_user>
+      - DATABASE_PASS=<your_database_password>
+      - DATABASE_HOST=<your_database_host>
+      - DATABASE_PORT=<your_database_port>
+      - DATABASE_SSLMODE=prefer
+      - DATABASE_LOGGING=true
+    networks:
+      - chatbot-network
+    restart: always
+    command: ./main
+
+  auth-service:
+    build:
+      context: ./services/auth-service
+    # ports:
+    #   - "3002:3002"
+    environment:
+      - APP_NAME=Auth Service
+      - APP_VERSION=1.0.0
+      - GRPC_USER_SERVICE=user-service:3001
+      - GRPC_USER_SERVICE_SECURE=false
+      - HOSTNAME=api.example.com
+      - AUDIENCES=example.com
+      - JWT_ACCESS_KEY=secretRandom4ccessK3y
+      - JWT_REFRESH_KEY=secretRandomR3fr3shK3y
+      - GOOGLE_CLIENT_ID=<your_google_client_id>
+    networks:
+      - chatbot-network
+    restart: always
+    command: ./main
+    depends_on:
+      - user-service
+
+  chat-service:
+    build:
+      context: ./services/chat-service
+    # ports:
+    #   - "3003:3003"
+    environment:
+      - APP_NAME=Chat Service
+      - APP_VERSION=1.0.0
+      - DATABASE_NAME=<your_database_name>
+      - DATABASE_USER=<your_database_user>
+      - DATABASE_PASS=<your_database_password>
+      - DATABASE_HOST=<your_database_host>
+      - DATABASE_PORT=<your_database_port>
+      - DATABASE_SSLMODE=prefer
+      - DATABASE_LOGGING=true
+      - GEMINI_API_KEY=<your_gemini_api_key>
+    networks:
+      - chatbot-network
+    command: ./main
+    restart: always
+
+  api-gateway:
+    build:
+      context: ./services/api-gateway
+    ports:
+      - "3004:3004"
+    environment:
+      - APP_NAME=API Gateway
+      - APP_VERSION=1.0.0
+      - GRPC_AUTH_SERVICE=auth-service:3002
+      - GRPC_AUTH_SERVICE_SECURE=false
+      - GRPC_CHAT_SERVICE=chat-service:3003
+      - GRPC_CHAT_SERVICE_SECURE=false
+    networks:
+      - chatbot-network
+    restart: always
+    command: ./main
+    depends_on:
+      - auth-service
+      - chat-service
+
+  web-service:
+    build:
+      context: ./services/web-service
+    ports:
+      - "3000:3000"
+    environment:
+      - AUTH_SECRET=<your_auth_secret>
+      - API_URL=http://api-gateway:3004
+      - PUBLIC_API_URL=http://localhost:3004
+      - AUTH_GOOGLE_ID=<your_google_client_id>
+      - AUTH_GOOGLE_SECRET=<your_google_client_secret>
+    networks:
+      - chatbot-network
+    restart: always
+    depends_on:
+      - api-gateway
