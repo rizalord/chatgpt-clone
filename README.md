@@ -19,7 +19,7 @@ The application is built using microservices architecture with the following ser
 - **User Service**: Handles user management and profiles
 
 Below is the diagram of the application architecture:
-![ChatGPT Clone Architecture](https://i.imgur.com/lLTSAIH.png)
+![ChatGPT Clone Architecture](https://i.imgur.com/kTx5TOg.png)
 
 ## Features
 
