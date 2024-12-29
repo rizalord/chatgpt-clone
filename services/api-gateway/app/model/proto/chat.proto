@@ -1,0 +1,70 @@
+syntax = "proto3";
+package proto;
+
+option go_package = "./app/model/proto";
+
+service ChatService {
+    rpc GetChats(GetChatsRequest) returns (GetChatsResponse) {}
+    rpc GetChatByIdAndUserId(GetChatRequest) returns (GetChatResponse) {}
+    rpc CreateMessage(stream Message) returns (stream Part) {}
+    rpc GetMessages(GetMessagesRequest) returns (GetMessagesResponse) {}
+}
+
+message GetChatsRequest {
+    int64 userId = 1;
+}
+
+message GetChatsResponse {
+    repeated Chat chats = 1;
+}
+
+message GetChatRequest {
+    int64 chatId = 1;
+    int64 userId = 2;
+}
+
+message GetChatResponse {
+    Chat chat = 1;
+    repeated FullMessage messages = 2;
+}
+
+message GetMessagesRequest {
+    int64 chatId = 1;
+    int64 userId = 2;
+}
+
+message GetMessagesResponse {
+    repeated FullMessage messages = 1;
+}
+
+message FullMessage {
+    int64 id = 1;
+    int64 chatId = 2;
+    int64 userId = 3;
+    string role = 4;
+    string content = 5;
+}
+
+message Chat {
+    int64 id = 1;
+    int64 userId = 2;
+    string topic = 3;
+}
+
+message Message {
+    int64 chatId = 1;
+    int64 userId = 2;
+    string message = 3;
+}
+
+enum Status {
+    START = 0;
+    PROGRESS = 1;
+    END = 2;
+}
+
+message Part {
+    int64 chatId = 1;
+    string part = 2;
+    Status status = 3;
+}

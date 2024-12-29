@@ -1,0 +1,42 @@
+syntax = "proto3";
+package proto;
+
+option go_package = "./app/model/proto";
+
+service UserService {
+    rpc GetUserByEmail(GetUserByEmailRequest) returns (GetUserResponse) {}
+    rpc GetUserByID(GetUserByIDRequest) returns (GetUserResponse) {}
+    rpc CreateUser(CreateUserRequest) returns (GetUserResponse) {}
+    rpc UpdateUser(UpdateUserRequest) returns (GetUserResponse) {}
+}
+
+message GetUserByEmailRequest {
+    string email = 1;
+}
+
+message GetUserByIDRequest {
+    int64 id = 1;
+}
+
+message GetUserResponse {
+    int64 id = 1;
+    string email = 2;
+    string imageUrl = 3;
+    string name = 4;
+    string password = 5;
+}
+
+message CreateUserRequest {
+    string email = 1;
+    string imageUrl = 2;
+    string name = 3;
+    string password = 4;
+}
+
+message UpdateUserRequest {
+    int64 id = 1;
+    string email = 2;
+    string imageUrl = 3;
+    string name = 4;
+    string password = 5;
+}
